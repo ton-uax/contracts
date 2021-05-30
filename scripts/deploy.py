@@ -250,6 +250,7 @@ if __name__ == '__main__':
     deploy_keys = make_keys('deploy', DEPLOY_KEY_PATH)
 
     print('Generating owner keys')
+    OWNER_KEYS_DIR.mkdir(parents=True, exist_ok=True)
     pubkeys = []
     for i in range(3):
         result = make_keys(f'Owner {i + 1}', OWNER_KEYS_DIR / f'o{i + 1}.keys.json')
