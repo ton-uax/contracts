@@ -1,0 +1,81 @@
+{
+	"ABI version": 2,
+	"header": ["time"],
+	"functions": [
+		{
+			"name": "deploy",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onDeploy",
+			"inputs": [
+				{"name":"id","type":"uint16"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "updateImage",
+			"inputs": [
+				{"name":"index","type":"uint8"},
+				{"components":[{"name":"name","type":"bytes"},{"name":"initialBalance","type":"uint8"},{"name":"si","type":"cell"}],"name":"image","type":"tuple"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setOwnerKeys",
+			"inputs": [
+				{"name":"keys","type":"uint256[]"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "upgrade",
+			"inputs": [
+				{"name":"c","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "constructor",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "_ownerKeys",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_ownerKeys","type":"uint256[]"}
+			]
+		},
+		{
+			"name": "_images",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"name","type":"bytes"},{"name":"initialBalance","type":"uint8"},{"name":"si","type":"cell"}],"name":"_images","type":"map(uint8,tuple)"}
+			]
+		},
+		{
+			"name": "_deployed",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_deployed","type":"map(uint8,address)"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	]
+}

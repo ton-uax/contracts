@@ -1,0 +1,2425 @@
+.macro constructor
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+;; constructor protection
+GETGLOB 6
+THROWIF 51
+PUSHINT 1
+SETGLOB 6
+;; end constructor protection
+; Decode input parameters
+; Decode id
+LDU 16
+ENDS
+;; param: id
+; modifier accept
+ACCEPT
+; constructor TokenWallet
+;; push identifier id
+DUP
+CALLREF {
+	CALL $_initialize_internal_macro$
+}
+; end constructor TokenWallet
+; end modifier accept
+DROP
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	_logError_internal
+.type	_logError_internal, @function
+CALL $_logError_internal_macro$
+
+.macro _logError_internal_macro
+;; param: errorCode
+; function _logError
+;; if
+;; push identifier _logLevel
+GETGLOB 17
+;; &
+PUSHINT 1
+AND
+GTINT 0
+PUSHCONT {
+	;; Remote call IEventLog.logError
+	;; push identifier _eventLog
+	GETGLOB 13
+	NEWC
+	STSLICECONST x62_
+	STSLICE
+	PUSHSLICE x4017d7840000000000000000000000000000fa768efb_
+	STSLICER
+	;; id
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	STUR 16
+	;; code
+	;; push identifier errorCode
+	PUSH S1
+	STUR 16
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+;; end if
+; end function _logError
+DROP
+
+.globl	_initialize_internal
+.type	_initialize_internal, @function
+CALL $_initialize_internal_macro$
+
+.macro _initialize_internal_macro
+;; param: id
+; function _initialize
+; expValue
+; end expValue
+;; push identifier id
+DUP
+; colValue
+SETGLOB 11
+; end colValue
+;; get member sender
+GETGLOB 9
+;; decl: root
+; expValue
+; end expValue
+;; push identifier root
+DUP
+; colValue
+SETGLOB 14
+; end colValue
+; expValue
+;; fetch _clients
+;; push identifier root
+DUP
+GETGLOB 20
+; end expValue
+PUSHINT 30
+; colValue
+NEWC
+STU 16
+ROTREV
+PUSHINT 267
+DICTSETB
+SETGLOB 20
+; end colValue
+;; Remote call IRoot.onTokenWalletDeploy
+;; push identifier root
+DUP
+NEWC
+STSLICECONST x62_
+STSLICE
+PUSHSLICE x402625a000000000000000000000000000007d4d1f03_
+STSLICER
+;; id
+;; push identifier id
+PUSH S2
+STUR 16
+;; k
+GETGLOB 2
+STUR 256
+;; val
+;; get member balance
+GETPARAM 7
+INDEX 0
+;; uint64
+UFITS 64
+STUR 64
+ENDC
+PUSHINT 0
+SENDRAWMSG
+; end function _initialize
+DROP2
+
+.macro adopt
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode id
+LDU 16
+ENDS
+;; param: id
+; function adopt
+;; push identifier id
+DUP
+CALLREF {
+	CALL $_initialize_internal_macro$
+}
+; end function adopt
+DROP
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro collect
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; modifier trade
+;; if
+;; get member sender
+GETGLOB 9
+;; push identifier _medium
+GETGLOB 15
+SDEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 205
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IFNOT
+;; end if
+; function collect
+;; push identifier val
+; expValue
+;; fetch _accountsPayable
+; end expValue
+GETGLOB 22
+PUSH S1
+SUB
+UFITS 32
+; colValue
+SETGLOB 22
+; end colValue
+;; push identifier val
+; expValue
+;; fetch _actualBalance
+; end expValue
+GETGLOB 24
+; colValue
+; end colValue
+; end function collect
+; end modifier trade
+SUBR
+UFITS 32
+SETGLOB 24
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro incur
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; function incur
+;; push identifier val
+; expValue
+;; fetch _accountsReceivable
+; end expValue
+GETGLOB 23
+PUSH S1
+ADD
+UFITS 32
+; colValue
+SETGLOB 23
+; end colValue
+;; push identifier val
+; expValue
+;; fetch _balance
+; end expValue
+GETGLOB 21
+; colValue
+; end colValue
+; end function incur
+ADD
+UFITS 32
+SETGLOB 21
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro abort
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; modifier trade
+;; if
+;; get member sender
+GETGLOB 9
+;; push identifier _medium
+GETGLOB 15
+SDEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 205
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IFNOT
+;; end if
+; function abort
+;; push identifier val
+; expValue
+;; fetch _accountsPayable
+; end expValue
+GETGLOB 22
+PUSH S1
+SUB
+UFITS 32
+; colValue
+SETGLOB 22
+; end colValue
+;; push identifier val
+; expValue
+;; fetch _balance
+; end expValue
+GETGLOB 21
+; colValue
+; end colValue
+; end function abort
+; end modifier trade
+ADD
+UFITS 32
+SETGLOB 21
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro withdraw
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; modifier trade
+;; if
+;; get member sender
+GETGLOB 9
+;; push identifier _medium
+GETGLOB 15
+SDEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 205
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IFNOT
+;; end if
+; function withdraw
+;; push identifier val
+; expValue
+;; fetch _accountsReceivable
+; end expValue
+GETGLOB 23
+PUSH S1
+SUB
+UFITS 32
+; colValue
+SETGLOB 23
+; end colValue
+;; push identifier val
+; expValue
+;; fetch _balance
+; end expValue
+GETGLOB 21
+; colValue
+; end colValue
+; end function withdraw
+; end modifier trade
+SUBR
+UFITS 32
+SETGLOB 21
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro pay
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; modifier trade
+;; if
+;; get member sender
+GETGLOB 9
+;; push identifier _medium
+GETGLOB 15
+SDEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 205
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IFNOT
+;; end if
+; function pay
+;; push identifier val
+; expValue
+;; fetch _accountsReceivable
+; end expValue
+GETGLOB 23
+PUSH S1
+SUB
+UFITS 32
+; colValue
+SETGLOB 23
+; end colValue
+;; push identifier val
+; expValue
+;; fetch _actualBalance
+; end expValue
+GETGLOB 24
+; colValue
+; end colValue
+; end function pay
+; end modifier trade
+ADD
+UFITS 32
+SETGLOB 24
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro debit
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; modifier trade
+;; if
+;; get member sender
+GETGLOB 9
+;; push identifier _medium
+GETGLOB 15
+SDEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 205
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IFNOT
+;; end if
+; function debit
+;; if
+;; push identifier val
+DUP
+;; >
+;; push identifier _actualBalance
+GETGLOB 24
+GREATER
+PUSHCONT {
+	;; push identifier _id
+	GETGLOB 11
+	PUSHINT 216
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+	; expValue
+	; end expValue
+	PUSHINT 0
+	; colValue
+	SETGLOB 24
+	; end colValue
+}
+PUSHCONT {
+	;; push identifier val
+	; expValue
+	;; fetch _actualBalance
+	; end expValue
+	GETGLOB 24
+	PUSH S1
+	SUB
+	UFITS 32
+	; colValue
+	SETGLOB 24
+	; end colValue
+	;; push identifier val
+	; expValue
+	;; fetch _balance
+	; end expValue
+	GETGLOB 21
+	PUSH S1
+	SUB
+	UFITS 32
+	; colValue
+	SETGLOB 21
+	; end colValue
+}
+IFELSE
+;; end if
+; end function debit
+; end modifier trade
+DROP
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro credit
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; modifier trade
+;; if
+;; get member sender
+GETGLOB 9
+;; push identifier _medium
+GETGLOB 15
+SDEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 205
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IFNOT
+;; end if
+; function credit
+;; push identifier val
+; expValue
+;; fetch _actualBalance
+; end expValue
+GETGLOB 24
+PUSH S1
+ADD
+UFITS 32
+; colValue
+SETGLOB 24
+; end colValue
+;; push identifier val
+; expValue
+;; fetch _balance
+; end expValue
+GETGLOB 21
+; colValue
+; end colValue
+; end function credit
+; end modifier trade
+ADD
+UFITS 32
+SETGLOB 21
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	_transferTokens_internal
+.type	_transferTokens_internal, @function
+CALL $_transferTokens_internal_macro$
+
+.macro _transferTokens_internal_macro
+;; param: to
+;; param: val
+; function _transferTokens
+;; Remote call IMedium.requestTransfer
+;; push identifier _medium
+GETGLOB 15
+NEWC
+STSLICECONST x62_
+STSLICE
+PUSHSLICE x402625a00000000000000000000000000000b1d4f247_
+STSLICER
+;; to
+;; push identifier to
+PUSH S2
+STSLICER
+;; val
+;; push identifier val
+PUSH S1
+STUR 32
+ENDC
+PUSHINT 0
+SENDRAWMSG
+CALLREF {
+	CALL $_checkTonBalance_internal_macro$
+}
+; end function _transferTokens
+DROP2
+
+.globl	_accrueExpenses_internal
+.type	_accrueExpenses_internal, @function
+CALL $_accrueExpenses_internal_macro$
+
+.macro _accrueExpenses_internal_macro
+;; param: val
+; function _accrueExpenses
+;; push identifier val
+DUP
+;; +
+;; push identifier _transferFee
+GETGLOB 18
+ADD
+UFITS 32
+;; decl: total
+;; push identifier total
+; expValue
+;; fetch _accountsPayable
+; end expValue
+GETGLOB 22
+PUSH S1
+ADD
+UFITS 32
+; colValue
+SETGLOB 22
+; end colValue
+;; push identifier total
+; expValue
+;; fetch _balance
+; end expValue
+GETGLOB 21
+PUSH S1
+SUB
+UFITS 32
+; colValue
+SETGLOB 21
+; end colValue
+CALLREF {
+	CALL $_checkTonBalance_internal_macro$
+}
+; end function _accrueExpenses
+DROP2
+
+.macro transferTokens
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode to
+LDMSGADDR
+; Decode val
+LDU 32
+ENDS
+;; param: to
+;; param: val
+; modifier some
+;; push identifier val
+DUP
+;; if
+;; index
+;; get member sender
+GETGLOB 9
+;; push identifier _clients
+GETGLOB 20
+PUSHINT 267
+DICTGET
+PUSHCONT {
+	PLDU 16
+}
+PUSHCONT {
+	PUSHINT 0
+}
+IFELSE
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 122
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+	GETGLOB 5
+	DUP
+	ISNULL
+	PUSHCONT {
+		DROP
+		PUSHINT 0
+	}
+	IF
+	;; ==
+	GETGLOB 2
+	EQUAL
+	THROWIFNOT 119
+}
+IFNOT
+;; end if
+;; if
+;; push identifier val
+DUP
+;; <=
+;; push identifier _balance
+GETGLOB 21
+;; +
+;; push identifier _transferFee
+GETGLOB 18
+ADD
+UFITS 32
+LEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 215
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IF
+;; end if
+ACCEPT
+; function transferTokens
+;; push identifier to
+;; push identifier val
+BLKPUSH 2, 2
+CALLREF {
+	CALL $_transferTokens_internal_macro$
+}
+; end function transferTokens
+; end modifier some
+BLKDROP 3
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro transferTokensExt
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode to
+LDMSGADDR
+; Decode val
+LDU 32
+ENDS
+;; param: to
+;; param: val
+; modifier signedSolvent
+;; push identifier val
+DUP
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 119
+;; push identifier val
+DUP
+;; <=
+;; push identifier _balance
+GETGLOB 21
+;; +
+;; push identifier _transferFee
+GETGLOB 18
+ADD
+UFITS 32
+LEQ
+THROWIFNOT 215
+ACCEPT
+; function transferTokensExt
+;; push identifier to
+;; push identifier val
+BLKPUSH 2, 2
+CALLREF {
+	CALL $_transferTokens_internal_macro$
+}
+; end function transferTokensExt
+; end modifier signedSolvent
+BLKDROP 3
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	_instantTransfer_internal
+.type	_instantTransfer_internal, @function
+CALL $_instantTransfer_internal_macro$
+
+.macro _instantTransfer_internal_macro
+;; param: to
+;; param: val
+; function _instantTransfer
+;; push identifier val
+DUP
+CALLREF {
+	CALL $_accrueExpenses_internal_macro$
+}
+;; Remote call ITokenWallet.incur
+;; push identifier to
+PUSH S1
+NEWC
+STSLICECONST x62_
+STSLICE
+PUSHSLICE x402625a000000000000000000000000000003f5a2803_
+STSLICER
+;; val
+;; push identifier val
+PUSH S1
+STUR 32
+ENDC
+PUSHINT 0
+SENDRAWMSG
+;; Remote call IMedium.processTransfer
+;; push identifier _medium
+GETGLOB 15
+NEWC
+STSLICECONST x62_
+STSLICE
+PUSHSLICE x402625a00000000000000000000000000000e950f301_
+STSLICER
+;; to
+;; push identifier to
+PUSH S2
+STSLICER
+;; val
+;; push identifier val
+PUSH S1
+STUR 32
+ENDC
+PUSHINT 0
+SENDRAWMSG
+; end function _instantTransfer
+DROP2
+
+.macro instantTransfer
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode to
+LDMSGADDR
+; Decode val
+LDU 32
+ENDS
+;; param: to
+;; param: val
+; modifier some
+;; push identifier val
+DUP
+;; if
+;; index
+;; get member sender
+GETGLOB 9
+;; push identifier _clients
+GETGLOB 20
+PUSHINT 267
+DICTGET
+PUSHCONT {
+	PLDU 16
+}
+PUSHCONT {
+	PUSHINT 0
+}
+IFELSE
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 122
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+	GETGLOB 5
+	DUP
+	ISNULL
+	PUSHCONT {
+		DROP
+		PUSHINT 0
+	}
+	IF
+	;; ==
+	GETGLOB 2
+	EQUAL
+	THROWIFNOT 119
+}
+IFNOT
+;; end if
+;; if
+;; push identifier val
+DUP
+;; <=
+;; push identifier _balance
+GETGLOB 21
+;; +
+;; push identifier _transferFee
+GETGLOB 18
+ADD
+UFITS 32
+LEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 215
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IF
+;; end if
+ACCEPT
+; function instantTransfer
+;; push identifier to
+;; push identifier val
+BLKPUSH 2, 2
+CALLREF {
+	CALL $_instantTransfer_internal_macro$
+}
+; end function instantTransfer
+; end modifier some
+BLKDROP 3
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro instantTransferExt
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode to
+LDMSGADDR
+; Decode val
+LDU 32
+ENDS
+;; param: to
+;; param: val
+; modifier signedSolvent
+;; push identifier val
+DUP
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 119
+;; push identifier val
+DUP
+;; <=
+;; push identifier _balance
+GETGLOB 21
+;; +
+;; push identifier _transferFee
+GETGLOB 18
+ADD
+UFITS 32
+LEQ
+THROWIFNOT 215
+ACCEPT
+; function instantTransferExt
+;; push identifier to
+;; push identifier val
+BLKPUSH 2, 2
+CALLREF {
+	CALL $_instantTransfer_internal_macro$
+}
+; end function instantTransferExt
+; end modifier signedSolvent
+BLKDROP 3
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	_donate_internal
+.type	_donate_internal, @function
+CALL $_donate_internal_macro$
+
+.macro _donate_internal_macro
+;; param: val
+; function _donate
+;; Remote call IMedium.accrue
+;; push identifier _medium
+GETGLOB 15
+NEWC
+STSLICECONST x62_
+STSLICE
+PUSHSLICE x402625a000000000000000000000000000008c230c25_
+STSLICER
+;; val
+;; push identifier val
+PUSH S1
+STUR 32
+ENDC
+PUSHINT 0
+SENDRAWMSG
+; end function _donate
+DROP
+
+.macro donate
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; modifier some
+;; push identifier val
+DUP
+;; if
+;; index
+;; get member sender
+GETGLOB 9
+;; push identifier _clients
+GETGLOB 20
+PUSHINT 267
+DICTGET
+PUSHCONT {
+	PLDU 16
+}
+PUSHCONT {
+	PUSHINT 0
+}
+IFELSE
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 122
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+	GETGLOB 5
+	DUP
+	ISNULL
+	PUSHCONT {
+		DROP
+		PUSHINT 0
+	}
+	IF
+	;; ==
+	GETGLOB 2
+	EQUAL
+	THROWIFNOT 119
+}
+IFNOT
+;; end if
+;; if
+;; push identifier val
+DUP
+;; <=
+;; push identifier _balance
+GETGLOB 21
+;; +
+;; push identifier _transferFee
+GETGLOB 18
+ADD
+UFITS 32
+LEQ
+PUSHCONT {
+	;; index
+	;; get member sender
+	GETGLOB 9
+	;; push identifier _clients
+	GETGLOB 20
+	PUSHINT 267
+	DICTGET
+	PUSHCONT {
+		PLDU 16
+	}
+	PUSHCONT {
+		PUSHINT 0
+	}
+	IFELSE
+	PUSHINT 215
+	CALLREF {
+		CALL $_error_internal_macro$
+	}
+}
+IF
+;; end if
+ACCEPT
+; function donate
+;; push identifier val
+PUSH S1
+CALLREF {
+	CALL $_donate_internal_macro$
+}
+; end function donate
+; end modifier some
+DROP2
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro donateExt
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode val
+LDU 32
+ENDS
+;; param: val
+; modifier signedSolvent
+;; push identifier val
+DUP
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+;; ==
+GETGLOB 2
+EQUAL
+THROWIFNOT 119
+;; push identifier val
+DUP
+;; <=
+;; push identifier _balance
+GETGLOB 21
+;; +
+;; push identifier _transferFee
+GETGLOB 18
+ADD
+UFITS 32
+LEQ
+THROWIFNOT 215
+ACCEPT
+; function donateExt
+;; push identifier val
+PUSH S1
+CALLREF {
+	CALL $_donate_internal_macro$
+}
+; end function donateExt
+; end modifier signedSolvent
+DROP2
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro getFinances
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+ENDS
+;; ret param: id
+;; ret param: balance
+;; ret param: accountsPayable
+;; ret param: accountsReceivable
+;; ret param: actualBalance
+; function getFinances
+; expValue
+; end expValue
+;; push identifier _id
+; colValue
+; end colValue
+; expValue
+; end expValue
+;; push identifier _balance
+; colValue
+; end colValue
+; expValue
+; end expValue
+;; push identifier _accountsPayable
+; colValue
+; end colValue
+; expValue
+; end expValue
+;; push identifier _accountsReceivable
+; colValue
+; end colValue
+; expValue
+; end expValue
+;; push identifier _actualBalance
+; colValue
+GETGLOB 11
+GETGLOB 21
+GETGLOB 22
+GETGLOB 23
+GETGLOB 24
+; end colValue
+; end function getFinances
+;; emitting 5 value(s)
+PUSH S5
+EQINT -1
+PUSHCONT {
+	PUSH S7
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x0000000000000000000000003d5d8447e_
+	STSLICER
+	PUSH S5
+	STUR 32
+	PUSH S4
+	STUR 32
+	PUSH S3
+	STUR 32
+	PUSH S2
+	STUR 32
+	PUSH S1
+	STUR 32
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+BLKDROP 5
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	_error_internal
+.type	_error_internal, @function
+CALL $_error_internal_macro$
+
+.macro _error_internal_macro
+;; param: id
+;; param: code
+; function _error
+;; if
+;; push identifier _logLevel
+GETGLOB 17
+;; &
+PUSHINT 1
+AND
+GTINT 0
+PUSHCONT {
+	;; Remote call IEventLog.logError
+	;; push identifier _eventLog
+	GETGLOB 13
+	NEWC
+	STSLICECONST x62_
+	STSLICE
+	PUSHSLICE x4017d7840000000000000000000000000000fa768efb_
+	STSLICER
+	;; id
+	;; push identifier id
+	PUSH S2
+	STUR 16
+	;; code
+	;; push identifier code
+	PUSH S1
+	STUR 16
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+;; end if
+; end function _error
+DROP2
+
+.globl	_checkTonBalance_internal
+.type	_checkTonBalance_internal, @function
+CALL $_checkTonBalance_internal_macro$
+
+.macro _checkTonBalance_internal_macro
+; function _checkTonBalance
+;; get member balance
+GETPARAM 7
+INDEX 0
+;; uint64
+UFITS 64
+;; decl: tonBalance
+;; if
+;; push identifier tonBalance
+DUP
+;; <
+;; push identifier _warnBalance
+GETGLOB 19
+LESS
+PUSHCONT {
+	;; Remote call IRoot.updateTonBalance
+	;; push identifier _root
+	GETGLOB 14
+	NEWC
+	STSLICECONST x62_
+	STSLICE
+	PUSHSLICE x402625a00000000000000000000000000000e5f7ae0d_
+	STSLICER
+	;; id
+	;; push identifier _id
+	GETGLOB 11
+	STUR 16
+	;; tonBalance
+	;; push identifier tonBalance
+	PUSH S1
+	STUR 64
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+;; end if
+DROP
+; end function _checkTonBalance
+
+.macro initMember
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode id
+LDU 16
+; Decode console
+LDMSGADDR
+; Decode eventLog
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode root
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode medium
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode dashboard
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode logLevel
+LDUQ 16
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDU 16
+}
+IFNOT
+ENDS
+;; param: id
+;; param: console
+;; param: eventLog
+;; param: root
+;; param: medium
+;; param: dashboard
+;; param: logLevel
+; function initMember
+; expValue
+; end expValue
+;; push identifier id
+PUSH S6
+; colValue
+SETGLOB 11
+; end colValue
+;; push identifier console
+;; push identifier eventLog
+;; push identifier root
+;; push identifier medium
+;; push identifier dashboard
+;; push identifier logLevel
+BLKPUSH 6, 5
+CALLREF {
+	CALL $_setEnv_internal_macro$
+}
+; end function initMember
+BLKDROP 7
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	_setEnv_internal
+.type	_setEnv_internal, @function
+CALL $_setEnv_internal_macro$
+
+.macro _setEnv_internal_macro
+;; param: console
+;; param: eventLog
+;; param: root
+;; param: medium
+;; param: dashboard
+;; param: logLevel
+; function _setEnv
+; expValue
+; end expValue
+;; push identifier console
+PUSH S5
+; colValue
+SETGLOB 12
+; end colValue
+; expValue
+; end expValue
+;; push identifier eventLog
+PUSH S4
+; colValue
+SETGLOB 13
+; end colValue
+; expValue
+; end expValue
+;; push identifier root
+PUSH S3
+; colValue
+SETGLOB 14
+; end colValue
+; expValue
+; end expValue
+;; push identifier medium
+PUSH S2
+; colValue
+SETGLOB 15
+; end colValue
+; expValue
+; end expValue
+;; push identifier dashboard
+PUSH S1
+; colValue
+SETGLOB 16
+; end colValue
+; expValue
+; end expValue
+;; push identifier logLevel
+DUP
+; colValue
+SETGLOB 17
+; end colValue
+; expValue
+;; fetch _clients
+;; push identifier console
+PUSH S5
+GETGLOB 20
+; end expValue
+PUSHINT 10
+; colValue
+NEWC
+STU 16
+ROTREV
+PUSHINT 267
+DICTSETB
+; end colValue
+; expValue
+;; fetch _clients
+DUP
+SETGLOB 20
+;; push identifier eventLog
+PUSH S5
+SWAP
+; end expValue
+PUSHINT 20
+; colValue
+NEWC
+STU 16
+ROTREV
+PUSHINT 267
+DICTSETB
+; end colValue
+; expValue
+;; fetch _clients
+DUP
+SETGLOB 20
+;; push identifier root
+PUSH S4
+SWAP
+; end expValue
+PUSHINT 30
+; colValue
+NEWC
+STU 16
+ROTREV
+PUSHINT 267
+DICTSETB
+; end colValue
+; expValue
+;; fetch _clients
+DUP
+SETGLOB 20
+;; push identifier medium
+PUSH S3
+SWAP
+; end expValue
+PUSHINT 40
+; colValue
+NEWC
+STU 16
+ROTREV
+PUSHINT 267
+DICTSETB
+; end colValue
+; expValue
+;; fetch _clients
+DUP
+SETGLOB 20
+;; push identifier dashboard
+PUSH S2
+SWAP
+; end expValue
+PUSHINT 50
+; colValue
+NEWC
+STU 16
+ROTREV
+PUSHINT 267
+DICTSETB
+SETGLOB 20
+; end colValue
+; end function _setEnv
+BLKDROP 6
+
+.macro updateEnv
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+; Decode console
+LDMSGADDR
+; Decode eventLog
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode root
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode medium
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode dashboard
+LDMSGADDRQ
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDMSGADDR
+}
+IFNOT
+; Decode logLevel
+LDUQ 16
+PUSHCONT {
+	;; load next cell
+	LDREF
+	ENDS
+	CTOS
+	LDU 16
+}
+IFNOT
+ENDS
+;; param: console
+;; param: eventLog
+;; param: root
+;; param: medium
+;; param: dashboard
+;; param: logLevel
+; function updateEnv
+;; push identifier console
+;; push identifier eventLog
+;; push identifier root
+;; push identifier medium
+;; push identifier dashboard
+;; push identifier logLevel
+BLKPUSH 6, 5
+CALLREF {
+	CALL $_setEnv_internal_macro$
+}
+; end function updateEnv
+BLKDROP 6
+CALLREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.macro getEnv
+DROP
+GETGLOB 1
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+; Decode input parameters
+ENDS
+CALLREF {
+	CALL $getEnv_internal_macro$
+}
+;; emitting 7 value(s)
+PUSH S7
+EQINT -1
+PUSHCONT {
+	PUSH S9
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHINT 97
+	STZEROES
+	STSLICECONST 1
+	NEWC
+	STSLICECONST xdff1c3fa
+	PUSH S8
+	STUR 16
+	PUSH S7
+	STSLICER
+	PUSH S6
+	STSLICER
+	PUSH S5
+	STSLICER
+	NEWC
+	PUSH S5
+	STSLICER
+	PUSH S4
+	STSLICER
+	PUSH S3
+	STUR 16
+	STBREFR
+	STBREFR
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+BLKDROP 7
+IFREF {
+	CALL $c7_to_c4$
+}
+TRUE
+SETGLOB 7
+
+.globl	getEnv_internal
+.type	getEnv_internal, @function
+CALL $getEnv_internal_macro$
+
+.macro getEnv_internal_macro
+;; ret param: id
+PUSHINT 0
+;; ret param: console
+PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+;; ret param: eventLog
+PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+;; ret param: root
+PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+;; ret param: medium
+PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+;; ret param: dashboard
+PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+;; ret param: logLevel
+PUSHINT 0
+; function getEnv
+;; return
+;; push identifier _id
+GETGLOB 11
+;; push identifier _console
+GETGLOB 12
+;; push identifier _eventLog
+GETGLOB 13
+;; push identifier _root
+GETGLOB 14
+;; push identifier _medium
+GETGLOB 15
+;; push identifier _dashboard
+GETGLOB 16
+;; push identifier _logLevel
+GETGLOB 17
+BLKDROP2 7, 7
+; end function getEnv
+
+.macro c7_to_c4
+GETGLOB 2
+NEWC
+STU 256
+GETGLOB 3
+STUR 64
+GETGLOB 6
+STUR 1
+NEWC
+GETGLOB 14
+GETGLOB 15
+GETGLOB 16
+GETGLOB 19
+GETGLOB 22
+REVERSE 6, 0
+STSLICE
+STSLICE
+STSLICE
+STU 64
+STU 32
+NEWC
+GETGLOB 23
+GETGLOB 24
+XCHG s2
+STU 32
+STU 32
+GETGLOB 10
+GETGLOB 11
+GETGLOB 12
+GETGLOB 13
+GETGLOB 17
+GETGLOB 18
+GETGLOB 20
+GETGLOB 21
+REVERSE 11, 0
+STBREF
+STBREF
+STU 8
+STU 16
+STSLICE
+STSLICE
+STU 16
+STU 8
+STDICT
+STU 32
+ENDC
+POP C4
+
+.macro c4_to_c7
+PUSHROOT
+CTOS        ; c4
+LDU 256      ; pubkey c4
+LDU 64      ; pubkey timestamp c4
+LDU 1       ; pubkey [timestamp] constructor_flag memory
+LDREFRTOS
+LDMSGADDR
+LDMSGADDR
+LDMSGADDR
+LDU 64
+PLDU 32
+SETGLOB 22
+SETGLOB 19
+SETGLOB 16
+SETGLOB 15
+SETGLOB 14
+LDREFRTOS
+LDU 32
+PLDU 32
+SETGLOB 24
+SETGLOB 23
+LDU 8
+LDU 16
+LDMSGADDR
+LDMSGADDR
+LDU 16
+LDU 8
+LDDICT
+PLDU 32
+SETGLOB 21
+SETGLOB 20
+SETGLOB 18
+SETGLOB 17
+SETGLOB 13
+SETGLOB 12
+SETGLOB 11
+SETGLOB 10
+TRUE
+SETGLOB 1   ; pubkey [timestamp] constructor_flag
+SETGLOB 6   ; pubkey [timestamp]
+SETGLOB 3   ; D
+SETGLOB 2
+
+.macro c4_to_c7_with_init_storage
+PUSHROOT
+CTOS        ; c4
+DUP        ; c4 c4
+SBITS      ; c4 bits
+GTINT 1    ; c4 bits>1
+PUSHCONT {
+	LDU 256      ; pubkey c4
+	LDU 64      ; pubkey timestamp c4
+	LDU 1       ; pubkey [timestamp] constructor_flag memory
+	LDREFRTOS
+	LDMSGADDR
+	LDMSGADDR
+	LDMSGADDR
+	LDU 64
+	PLDU 32
+	SETGLOB 22
+	SETGLOB 19
+	SETGLOB 16
+	SETGLOB 15
+	SETGLOB 14
+	LDREFRTOS
+	LDU 32
+	PLDU 32
+	SETGLOB 24
+	SETGLOB 23
+	LDU 8
+	LDU 16
+	LDMSGADDR
+	LDMSGADDR
+	LDU 16
+	LDU 8
+	LDDICT
+	PLDU 32
+	SETGLOB 21
+	SETGLOB 20
+	SETGLOB 18
+	SETGLOB 17
+	SETGLOB 13
+	SETGLOB 12
+	SETGLOB 11
+	SETGLOB 10
+	TRUE
+	SETGLOB 1   ; pubkey [timestamp] constructor_flag
+	SETGLOB 6   ; pubkey [timestamp]
+	SETGLOB 3   ; D
+	SETGLOB 2
+}
+PUSHCONT {
+	PLDDICT   ; D
+	; init _version
+	PUSHINT 0
+	SETGLOB 10
+	; init _id
+	PUSHINT 0
+	SETGLOB 11
+	; init _console
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	SETGLOB 12
+	; init _eventLog
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	SETGLOB 13
+	; init _root
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	SETGLOB 14
+	; init _medium
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	SETGLOB 15
+	; init _dashboard
+	PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+	SETGLOB 16
+	; init _logLevel
+	PUSHINT 0
+	SETGLOB 17
+	; init _transferFee
+	PUSHINT 0
+	SETGLOB 18
+	; init _warnBalance
+	PUSHINT 0
+	SETGLOB 19
+	; init _clients
+	NEWDICT
+	SETGLOB 20
+	; init _balance
+	PUSHINT 0
+	SETGLOB 21
+	; init _accountsPayable
+	PUSHINT 0
+	SETGLOB 22
+	; init _accountsReceivable
+	PUSHINT 0
+	SETGLOB 23
+	; init _actualBalance
+	PUSHINT 0
+	SETGLOB 24
+	; set contract pubkey
+	PUSHINT 0
+	SWAP
+	PUSHINT 64
+	DICTUGET
+	THROWIFNOT 61
+	PLDU 256
+	SETGLOB 2
+	PUSHINT 0 ; timestamp
+	SETGLOB 3
+	PUSHINT 0 ; constructor_flag
+	SETGLOB 6
+	TRUE
+	SETGLOB 1
+	;; init state var: _version
+	PUSHINT 30
+	SETGLOB 10
+	;; init state var: _transferFee
+	PUSHINT 1
+	SETGLOB 18
+	;; init state var: _warnBalance
+	PUSHINT 1990000000
+	SETGLOB 19
+	;; init state var: _balance
+	PUSHINT 0
+	SETGLOB 21
+}
+IFELSE
+
+.internal-alias :main_internal, 0
+.internal :main_internal
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function: main_internal
+;; param: contract_balance
+;; param: msg_balance
+;; param: int_msg_info
+;; param: msg_body_slice
+;; param: transaction_type
+PUSH S2
+CTOS
+LDU 4       ; bounced tail
+LDMSGADDR   ; bounced src tail
+DROP
+SETGLOB 9
+MODPOW2 1
+IFRET
+PUSH S1    ; body
+SEMPTY     ; isEmpty
+IFRET
+PUSH S1 ; body
+LDU 32  ; funcId body'
+PUSH S1 ; funcId body' funcId
+IFNOTRET
+SWAP
+CALLREF {
+	CALL $public_function_selector$
+}
+GETGLOB 7
+ISNULL
+THROWIF 60
+
+.internal-alias :main_external, -1
+.internal :main_external
+PUSHSLICE x8000000000000000000000000000000000000000000000000000000000000000001_
+SETGLOB 9
+PUSH S1
+CALLREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+LDU 1 ; haveSign msgSlice
+SWAP
+PUSHCONT {
+	PUSHINT 512
+	LDSLICEX ; signatureSlice msgSlice
+	DUP      ; signatureSlice msgSlice msgSlice
+	HASHSU   ; signatureSlice msgSlice hashMsgSlice
+	ROT
+	GETGLOB 2
+	DUP
+	SETGLOB 5
+	CHKSIGNU      ; msgSlice isSigned
+	THROWIFNOT 40 ; msgSlice
+}
+IF
+LDU 64                         ; timestamp msgSlice
+SWAP                           ; msgSlice timestamp
+CALL $replay_protection_macro$ ; msgSlice
+LDU  32 ; funcId body
+SWAP    ; body funcId
+CALLREF {
+	CALL $public_function_selector$
+}
+GETGLOB 7
+ISNULL
+THROWIF 60
+
+.macro _clients
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 20
+PUSHSLICE xc0000000000000000000000000dccdc55c
+NEWC
+STSLICE
+PUSH S1
+SWAP
+STDICT
+ENDC
+PUSHINT 0
+SENDRAWMSG
+TRUE
+SETGLOB 7
+
+.macro public_function_selector
+DUP
+PUSHINT 656105679
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 174420648
+	LEQ
+	PUSHCONT {
+		DUP
+		PUSHINT 98225059
+		EQUAL
+		IFJMPREF {
+			CALL $donateExt$
+		}
+		DUP
+		PUSHINT 174420648
+		EQUAL
+		IFJMPREF {
+			CALL $pay$
+		}
+	}
+	IFJMP
+	DUP
+	PUSHINT 531436545
+	LEQ
+	PUSHCONT {
+		DUP
+		PUSHINT 507957272
+		EQUAL
+		IFJMPREF {
+			CALL $transferTokens$
+		}
+		DUP
+		PUSHINT 531436545
+		EQUAL
+		IFJMPREF {
+			CALL $incur$
+		}
+	}
+	IFJMP
+	DUP
+	PUSHINT 656105679
+	EQUAL
+	IFJMPREF {
+		CALL $updateEnv$
+	}
+}
+IFJMP
+DUP
+PUSHINT 1556989276
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 1035272230
+	LEQ
+	PUSHCONT {
+		DUP
+		PUSHINT 809846696
+		EQUAL
+		IFJMPREF {
+			CALL $donate$
+		}
+		DUP
+		PUSHINT 1035272230
+		EQUAL
+		IFJMPREF {
+			CALL $instantTransfer$
+		}
+	}
+	IFJMP
+	DUP
+	PUSHINT 1139978361
+	LEQ
+	PUSHCONT {
+		DUP
+		PUSHINT 1067578997
+		EQUAL
+		IFJMPREF {
+			CALL $credit$
+		}
+		DUP
+		PUSHINT 1139978361
+		EQUAL
+		IFJMPREF {
+			CALL $adopt$
+		}
+	}
+	IFJMP
+	DUP
+	PUSHINT 1556989276
+	EQUAL
+	IFJMPREF {
+		CALL $_clients$
+	}
+}
+IFJMP
+DUP
+PUSHINT 1935359384
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 1715458766
+	LEQ
+	PUSHCONT {
+		DUP
+		PUSHINT 1609679866
+		EQUAL
+		IFJMPREF {
+			CALL $getEnv$
+		}
+		DUP
+		PUSHINT 1715458766
+		EQUAL
+		IFJMPREF {
+			CALL $abort$
+		}
+	}
+	IFJMP
+	DUP
+	PUSHINT 1916782904
+	LEQ
+	PUSHCONT {
+		DUP
+		PUSHINT 1734330196
+		EQUAL
+		IFJMPREF {
+			CALL $collect$
+		}
+		DUP
+		PUSHINT 1916782904
+		EQUAL
+		IFJMPREF {
+			CALL $withdraw$
+		}
+	}
+	IFJMP
+	DUP
+	PUSHINT 1935359384
+	EQUAL
+	IFJMPREF {
+		CALL $instantTransferExt$
+	}
+}
+IFJMP
+DUP
+PUSHINT 2112180527
+LEQ
+PUSHCONT {
+	DUP
+	PUSHINT 2024728029
+	LEQ
+	PUSHCONT {
+		DUP
+		PUSHINT 1970671903
+		EQUAL
+		IFJMPREF {
+			CALL $getFinances$
+		}
+		DUP
+		PUSHINT 2024728029
+		EQUAL
+		IFJMPREF {
+			CALL $initMember$
+		}
+	}
+	IFJMP
+	DUP
+	PUSHINT 2089508844
+	LEQ
+	PUSHCONT {
+		DUP
+		PUSHINT 2059131705
+		EQUAL
+		IFJMPREF {
+			CALL $transferTokensExt$
+		}
+		DUP
+		PUSHINT 2089508844
+		EQUAL
+		IFJMPREF {
+			CALL $debit$
+		}
+	}
+	IFJMP
+	DUP
+	PUSHINT 2112180527
+	EQUAL
+	IFJMPREF {
+		CALL $constructor$
+	}
+}
+IFJMP

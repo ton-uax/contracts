@@ -1,0 +1,139 @@
+{
+	"ABI version": 2,
+	"header": ["time"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"key","type":"uint256"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "adopt",
+			"inputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"key","type":"uint256"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "approve",
+			"inputs": [
+				{"name":"id","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "reject",
+			"inputs": [
+				{"name":"id","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "propose",
+			"inputs": [
+				{"name":"eType","type":"uint8"},
+				{"name":"value","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "updateEventState",
+			"inputs": [
+				{"name":"id","type":"uint32"},
+				{"name":"state","type":"uint8"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "updateTokenWallet",
+			"inputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"addr","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"key","type":"uint256"},
+				{"name":"tokenWalletId","type":"uint16"},
+				{"name":"tokenWalletAddress","type":"address"}
+			]
+		},
+		{
+			"name": "initMember",
+			"inputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"console","type":"address"},
+				{"name":"eventLog","type":"address"},
+				{"name":"root","type":"address"},
+				{"name":"medium","type":"address"},
+				{"name":"dashboard","type":"address"},
+				{"name":"logLevel","type":"uint16"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "updateEnv",
+			"inputs": [
+				{"name":"console","type":"address"},
+				{"name":"eventLog","type":"address"},
+				{"name":"root","type":"address"},
+				{"name":"medium","type":"address"},
+				{"name":"dashboard","type":"address"},
+				{"name":"logLevel","type":"uint16"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getEnv",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"console","type":"address"},
+				{"name":"eventLog","type":"address"},
+				{"name":"root","type":"address"},
+				{"name":"medium","type":"address"},
+				{"name":"dashboard","type":"address"},
+				{"name":"logLevel","type":"uint16"}
+			]
+		},
+		{
+			"name": "_clients",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_clients","type":"map(address,uint16)"}
+			]
+		},
+		{
+			"name": "_events",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_events","type":"map(uint32,uint8)"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	]
+}
