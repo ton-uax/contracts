@@ -1,8 +1,10 @@
-pragma ton-solidity >= 0.36.0;
+pragma ton-solidity >= 0.41.0;
+pragma AbiHeader expire;
+pragma AbiHeader time;
+pragma AbiHeader pubkey;
 import "Types.sol";
 
 interface IOwnerWallet {
-    /* Owners' callbacks - news from the field */
     function updateEventState(uint32 id, EventState state) external;
 
     function approve(uint32 id) external;

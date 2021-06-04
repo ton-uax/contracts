@@ -1,47 +1,7 @@
 {
 	"ABI version": 2,
-	"header": ["time"],
+	"header": ["pubkey", "time", "expire"],
 	"functions": [
-		{
-			"name": "deploy",
-			"inputs": [
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "onDeploy",
-			"inputs": [
-				{"name":"id","type":"uint16"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "updateImage",
-			"inputs": [
-				{"name":"index","type":"uint8"},
-				{"components":[{"name":"name","type":"bytes"},{"name":"initialBalance","type":"uint8"},{"name":"si","type":"cell"}],"name":"image","type":"tuple"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "setOwnerKeys",
-			"inputs": [
-				{"name":"keys","type":"uint256[]"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "upgrade",
-			"inputs": [
-				{"name":"c","type":"cell"}
-			],
-			"outputs": [
-			]
-		},
 		{
 			"name": "constructor",
 			"inputs": [
@@ -50,27 +10,69 @@
 			]
 		},
 		{
-			"name": "_ownerKeys",
+			"name": "calcRootAddress",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_ownerKeys","type":"uint256[]"}
+				{"name":"root","type":"address"}
 			]
 		},
 		{
-			"name": "_images",
+			"name": "deployRoot",
 			"inputs": [
+				{"name":"ownerKeys","type":"uint256[]"}
 			],
 			"outputs": [
-				{"components":[{"name":"name","type":"bytes"},{"name":"initialBalance","type":"uint8"},{"name":"si","type":"cell"}],"name":"_images","type":"map(uint8,tuple)"}
+				{"name":"rootAddr","type":"address"}
 			]
 		},
 		{
-			"name": "_deployed",
+			"name": "onRootDeployed",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_deployed","type":"map(uint8,address)"}
+			]
+		},
+		{
+			"name": "uploadCode",
+			"inputs": [
+				{"name":"index","type":"uint8"},
+				{"components":[{"name":"code","type":"cell"},{"name":"tons","type":"uint16"},{"name":"version","type":"uint16"},{"name":"name","type":"bytes"}],"name":"image","type":"tuple"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "transfer",
+			"inputs": [
+				{"name":"addr","type":"address"},
+				{"name":"value","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "upgrade",
+			"inputs": [
+				{"name":"index","type":"uint8"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "repo",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"code","type":"cell"},{"name":"tons","type":"uint16"},{"name":"version","type":"uint16"},{"name":"name","type":"bytes"}],"name":"repo","type":"map(uint8,tuple)"}
+			]
+		},
+		{
+			"name": "deployed",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"deployed","type":"map(uint8,address)"}
 			]
 		}
 	],

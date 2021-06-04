@@ -1,9 +1,12 @@
-pragma ton-solidity >= 0.36.0;
+pragma ton-solidity >= 0.41.0;
+pragma AbiHeader expire;
+pragma AbiHeader time;
+pragma AbiHeader pubkey;
 import "Types.sol";
 
 interface IMedium {
-    function registerTokenWallet(uint16 id, address a) external;
-    function registerOwner(uint8 ownerId, uint16 id, address a, uint16 tid, address ta) external;
+    function registerTokenWallet(uint16 id) external;
+    function registerOwner(uint16 id, uint16 walletId, address walletAddress) external;
 
     function propose(EventType eType, uint32 value) external;
     function approve(uint32 eventID) external;

@@ -1,52 +1,17 @@
-pragma ton-solidity >= 0.36.0;
-import "IEventLog.sol";
+pragma ton-solidity >= 0.41.0;
+pragma AbiHeader expire;
+pragma AbiHeader time;
+pragma AbiHeader pubkey;
 import "IRoot.sol";
 
 contract Base {
 
-    uint8 _version = 30;
-    uint64 constant LOG = 25e6;
     uint64 constant PROCESS = 4e7;
     uint64 constant COMPUTE = 1e8;
     uint64 constant REIMBURSE = 3e8;
 
-    uint16 _id;
-    address _console;
-    address _eventLog;
-    address _root;
-    address _medium;
-    uint16 _logLevel;
+    ///
 
-    uint8 constant DEFAULT_TRANSFER_FEE     = 1;
-    uint64 constant DEFAULT_WARN_BALANCE    = 1.99 ton;
-
-    uint8 _transferFee      = DEFAULT_TRANSFER_FEE;
-    uint64 _warnBalance     = DEFAULT_WARN_BALANCE;
-
-    mapping (address => uint16) public _clients;
-
-    modifier accept {
-	    tvm.accept();
-	    _;
-    }
-
-    uint16 constant OWNER_BASE_ID   = 1;
-    uint16 constant CONSOLE_ID      = 10;
-    uint16 constant EVENT_LOG_ID    = 20;
-    uint16 constant ROOT_ID         = 30;
-    uint16 constant MEDIUM_ID       = 40;
-    uint16 constant TOKEN_BASE_ID   = 1e4;
-
-    uint16 constant LOG_ERRORS      = 1;
-    uint16 constant LOG_EVENTS      = 2;
-    uint16 constant LOG_RECORDS     = 4;
-    uint16 constant LOG_DEPLOYS     = 8;
-    uint16 constant LOG_TRANSFERS   = 16;
-    uint16 constant LOG_ALL         = LOG_ERRORS | LOG_EVENTS | LOG_RECORDS | LOG_DEPLOYS | LOG_TRANSFERS;
-    uint16 constant DEFAULT_LOG_LEVEL = LOG_ALL;
-//    uint16 constant DEFAULT_LOG_LEVEL = LOG_ERRORS | LOG_EVENTS;
-
-    /*  Authorization errors */
     uint16 constant ADDRESS_NOT_REGISTERED          = 113; // Address requesting token transfer is not registered
     uint16 constant MEDIUM_ACCESS_DENIED            = 114; // Address requesting Medium management action is not an owner
     uint16 constant ROOT_ACCESS_DENIED              = 117; // Unauthorized attempt to configure the Root
@@ -99,40 +64,27 @@ contract Base {
     uint16 constant TOKEN_WALLET_EXISTS             = 401; // Token wallet with this key has been already deployed
     uint16 constant BALANCE_UPDATE_TIMEOUT          = 402; // Balance update has been requested recently
 
-    function _error(uint16 id, uint16 code) internal view {
-        if (_logLevel & LOG_ERRORS > 0)
-            IEventLog(_eventLog).logError{value: LOG}(id, code);
-    }
+    ///
 
+    uint16 constant OWNER_BASE_ID   = 1;
+    uint16 constant ROOT_ID         = 30;
+    uint16 constant MEDIUM_ID       = 40;
+    uint16 constant TOKEN_BASE_ID   = 1e4;
+
+    uint16 public _id;
+    address public _root;
+    address public _medium;
+
+    uint8 _transferFee      = 1;
+    uint64 _warnBalance     = 1.99 ton;
+
+    mapping (address => uint16) public _clients;
+    
     function _checkTonBalance() internal view {
         uint64 tonBalance = uint64(address(this).balance);
         if (tonBalance < _warnBalance) {
-            IRoot(_root).updateTonBalance{value: PROCESS}(_id, tonBalance);
+            IRoot(_root).updateTonBalance{value: PROCESS}(tonBalance);
         }
     }
 
-    function initMember(uint16 id, address console, address eventLog, address root, address medium, uint16 logLevel) external {
-        _id = id;
-        _setEnv(console, eventLog, root, medium, logLevel);
-    }
-
-    function _setEnv(address console, address eventLog, address root, address medium, uint16 logLevel) internal {
-        _console = console;
-        _eventLog = eventLog;
-        _root = root;
-        _medium = medium;
-        _logLevel = logLevel;
-        _clients[console] = CONSOLE_ID;
-        _clients[eventLog] = EVENT_LOG_ID;
-        _clients[root] = ROOT_ID;
-        _clients[medium] = MEDIUM_ID;
-    }
-
-    function updateEnv(address console, address eventLog, address root, address medium, uint16 logLevel) external {
-        _setEnv(console, eventLog, root, medium, logLevel);
-    }
-
-    function getEnv() public view returns (uint16 id, address console, address eventLog, address root, address medium, uint16 logLevel) {
-        return (_id, _console, _eventLog, _root, _medium, _logLevel);
-    }
 }

@@ -1,19 +1,14 @@
-pragma ton-solidity >= 0.36.0;
+pragma ton-solidity >= 0.41.0;
+pragma AbiHeader expire;
+pragma AbiHeader time;
+pragma AbiHeader pubkey;
 import "Types.sol";
 
 interface IRoot {
-    function onDeploy(uint16 id) external;
+    function deployUAX(Code medium, Code owner, Code wallet) external;
 
-    function deployTokenWallets(uint16 k) external;
-    function deployTokenWalletsWithKeys(uint[] keys) external returns (uint16[] ids, address[] addrs);
-    function deployOwners() external;
-
-    function onTokenWalletDeploy(uint16 id, uint k, uint64 val) external;
-
+    function updateTonBalance(uint64 tonBalance) external;
     function updateRefillConfig(uint64 initialBalance, uint64 warnBalance, uint64 refillValue, uint32 updateTimeout) external;
-    function setEnv(address console, address eventLog, address root, address medium, uint16 logLevel) external;
-    function updateWalletsEnv() external;
-    function updateSystemEnv() external;
-    function registerOwners() external;
-    function updateTonBalance(uint16 id, uint64 tonBalance) external;
+
+    function deployTokenWalletsWithKeys(uint[] keys) external returns (address[] addrs);
 }

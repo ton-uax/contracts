@@ -4,27 +4,33 @@ This is UAX contracts repo.
 
 Deploy instructions assume that you have TON Solidity Compiler and TVM Linker installed
 
-## Deploy system
+## Compile all contracts
 
 ```bash
 make compile
-make deploydev # or deploymain
 ```
 
-## Dump system contract addresses
+## Deploy system
 
 ```bash
-make dumpaddrsdev # or dumpaddrsmain
+make repo net=devnet
+make deploy net=devnet # net=devnet|mainnet|se
 ```
 
 ## User wallet deployment
 
 ```bash
-make userdev # or deploymain
+make genusers net=devnet
+```
+
+## Dump contract addresses and keys for frontend
+
+```bash
+make dumpenv net=devnet
 ```
 
 ## Integrate with frontend MVP testbed
 
-- Copy `data/All.addr.json` file to `src/uax` folder inside frontend repo.
+- Copy `data/Env.json` file to `src/uax` folder inside frontend repo.
+- Build frontend bundle as usual
 
-- Copy all files from `data/keys` directory to `src/uax/ton-keys` folder inside frontend repo

@@ -1,12 +1,11 @@
 {
 	"ABI version": 2,
-	"header": ["time"],
+	"header": ["pubkey", "time", "expire"],
 	"functions": [
 		{
 			"name": "registerTokenWallet",
 			"inputs": [
-				{"name":"id","type":"uint16"},
-				{"name":"a","type":"address"}
+				{"name":"id","type":"uint16"}
 			],
 			"outputs": [
 			]
@@ -14,11 +13,9 @@
 		{
 			"name": "registerOwner",
 			"inputs": [
-				{"name":"ownerId","type":"uint8"},
 				{"name":"id","type":"uint16"},
-				{"name":"a","type":"address"},
-				{"name":"tid","type":"uint16"},
-				{"name":"ta","type":"address"}
+				{"name":"walletId","type":"uint16"},
+				{"name":"walletAddress","type":"address"}
 			],
 			"outputs": [
 			]
@@ -69,7 +66,6 @@
 		{
 			"name": "mint",
 			"inputs": [
-				{"name":"id","type":"uint16"},
 				{"name":"val","type":"uint32"}
 			],
 			"outputs": [
@@ -78,7 +74,6 @@
 		{
 			"name": "burn",
 			"inputs": [
-				{"name":"id","type":"uint16"},
 				{"name":"val","type":"uint32"}
 			],
 			"outputs": [
@@ -169,51 +164,34 @@
 			]
 		},
 		{
-			"name": "initMember",
-			"inputs": [
-				{"name":"id","type":"uint16"},
-				{"name":"console","type":"address"},
-				{"name":"eventLog","type":"address"},
-				{"name":"root","type":"address"},
-				{"name":"medium","type":"address"},
-				{"name":"dashboard","type":"address"},
-				{"name":"logLevel","type":"uint16"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "updateEnv",
-			"inputs": [
-				{"name":"console","type":"address"},
-				{"name":"eventLog","type":"address"},
-				{"name":"root","type":"address"},
-				{"name":"medium","type":"address"},
-				{"name":"dashboard","type":"address"},
-				{"name":"logLevel","type":"uint16"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "getEnv",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"id","type":"uint16"},
-				{"name":"console","type":"address"},
-				{"name":"eventLog","type":"address"},
-				{"name":"root","type":"address"},
-				{"name":"medium","type":"address"},
-				{"name":"dashboard","type":"address"},
-				{"name":"logLevel","type":"uint16"}
-			]
-		},
-		{
 			"name": "constructor",
 			"inputs": [
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "_id",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_id","type":"uint16"}
+			]
+		},
+		{
+			"name": "_root",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_root","type":"address"}
+			]
+		},
+		{
+			"name": "_medium",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_medium","type":"address"}
 			]
 		},
 		{
@@ -230,14 +208,6 @@
 			],
 			"outputs": [
 				{"components":[{"name":"id","type":"uint32"},{"name":"eType","type":"uint8"},{"name":"state","type":"uint8"},{"name":"createdAt","type":"uint32"}],"name":"_onApproval","type":"map(uint32,tuple)"}
-			]
-		},
-		{
-			"name": "_archived",
-			"inputs": [
-			],
-			"outputs": [
-				{"components":[{"name":"id","type":"uint32"},{"name":"eType","type":"uint8"},{"name":"state","type":"uint8"},{"name":"createdAt","type":"uint32"}],"name":"_archived","type":"map(uint32,tuple)"}
 			]
 		},
 		{

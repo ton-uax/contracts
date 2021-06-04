@@ -1,12 +1,16 @@
-#########################################################################
-# Compile and link
-#########################################################################
 BIN:=~/bin
 SOLC:=$(BIN)/solc
 LIB:=$(BIN)/stdlib_sol.tvm
 LINKER:=$(BIN)/tvm_linker
 
-CONTRACTS:=Repo Console EventLog Root Medium OwnerWallet TokenWallet
+clean:
+	rm -rf build
+
+#########################################################################
+# Compile and link
+#########################################################################
+
+CONTRACTS:=Repo Root Medium OwnerWallet TokenWallet
 TVCS:=$(patsubst %, build/%.tvc,$(CONTRACTS))
 
 compile: $(TVCS)
@@ -21,30 +25,24 @@ build/%.tvc: src/%.sol
 # Deploy
 #########################################################################
 
-deploydev:
-	-python scripts/deploy.py devnet
+repo:
+	-python scripts/repo.py $(net)
 
-deploymain:
-	-python scripts/deploy.py mainnet
-
-
-#########################################################################
-# Deploy
-#########################################################################
-
-dumpaddrsdev:
-	-python scripts/dumpaddrs.py devnet
-
-dumpaddrsmain:
-	-python scripts/dumpaddrs.py mainnet
+deploy:
+	-python scripts/deploy.py $(net)
 
 
 #########################################################################
-# Generate user wallet
+# Dump system contracts addresses
 #########################################################################
 
-userdev:
-	-python scripts/genwallet.py devnet
+dumpenv:
+	-python scripts/dumpenv.py $(net)
 
-usermain:
-	-python scripts/genwallet.py mainnet
+#########################################################################
+# Generate user wallets
+#########################################################################
+
+genusers:
+	-python scripts/genwallets.py $(net)
+
