@@ -34,7 +34,8 @@ if __name__ == '__main__':
         kp = KeyPair.load(OWNER_KEYS_DIR / f"o{i + 1}.keys.json", False)
         owners.append({
             "keys": kp.dict,
-            "addr": calc_address(ABI(BUILD_DIR, 'OwnerWallet'), TVC(BUILD_DIR, 'OwnerWallet'), kp.public)
+            "addr": calc_address(ABI(BUILD_DIR, 'OwnerWallet'), TVC(BUILD_DIR, 'OwnerWallet'), kp.public),
+            "wallet": calc_address(ABI(BUILD_DIR, 'TokenWallet'), TVC(BUILD_DIR, 'TokenWallet'), kp.public)
         })
     
     users = []
@@ -51,10 +52,7 @@ if __name__ == '__main__':
         "users": users
     }
     
-    (DATA_DIR / f'Env.addr.json').write_text(json.dumps(env, indent=2))
+    (DATA_DIR / f'Env.json').write_text(json.dumps(env, indent=2))
 
-    # known = run_getter(root_addr, ABI(BUILD_DIR, 'Root'), '_roster')['_roster']
-    # for addr in known:
-    #     print(known[addr]['id'], addr)
 
 

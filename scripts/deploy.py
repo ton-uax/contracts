@@ -48,7 +48,7 @@ def give(to, tons, wait=True):
 
 
 def deploy_root(repo_addr, repo_abi, pubkeys):
-    print('Deploying system contracts...')
+    print('Deploying Root contract...')
     call_set = CallSet(function_name='deployRoot', input={'ownerKeys': pubkeys})
     return run_onchain(repo_addr, repo_abi, call_set=call_set)
 
