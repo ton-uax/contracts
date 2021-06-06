@@ -1,3 +1,4 @@
 .DS_Store
-build/*.code
-data/*.addr
+build
+data/Env.json
+data/keys

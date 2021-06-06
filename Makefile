@@ -21,6 +21,7 @@ build/%.tvc: src/%.sol
 	$(SOLC) $^ -o build
 	$(LINKER) compile --lib $(LIB) build/$*.code -a build/$*.abi.json -o $@
 
+
 #########################################################################
 # Deploy
 #########################################################################
@@ -46,5 +47,3 @@ genusers:
 
 dumpenv:
 	-python scripts/dumpenv.py $(net)
-
-

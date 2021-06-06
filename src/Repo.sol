@@ -1,50 +1,92 @@
-pragma ton-solidity >= 0.36.0;
+pragma ton-solidity >= 0.44.0;
+pragma AbiHeader expire;
+pragma AbiHeader time;
+pragma AbiHeader pubkey;
 import "Types.sol";
 import "Root.sol";
 import "IRepo.sol";
+import "IRoot.sol";
 
 
 contract Repo is IRepo {
+
+    uint64 constant REIMBURSE = 3e8;
+    
+    modifier offchain {
+        require(msg.sender == address(0), 101);
+        _;
+    }
+
+    modifier onchain {
+        require(msg.value > 0, 101);
+        _;
+    }
+    
+    modifier onlyDev {
+        require(msg.pubkey() == tvm.pubkey(), 101);
+        _;
+    }
+
+    modifier onlyRoot {
+        require(msg.sender == calcRootAddress(), 101);
+        _;
+    }
 
     modifier accept {
         tvm.accept();
         _;
     }
 
-    uint16 constant ROOT_ID     = 30;
-    uint64 constant REIMBURSE   = 3e8;
+    mapping (uint8 => Code) public repo;
+    mapping (uint8 => address) public deployed;
 
-    uint[] public _ownerKeys;
-    mapping (uint8 => CTImage) public _images;
-    mapping (uint8 => address) public _deployed;
+    constructor() public offchain onlyDev accept {}
 
-    function deploy() external accept {
-        CTImage image = _images[3];
-        TvmCell signed = tvm.insertPubkey(image.si, tvm.pubkey());
-        uint128 val = uint128(image.initialBalance) * 1e9;
-        new Root {stateInit: signed, value: val}();
+    function _makeRootDeployParams(Code root) private inline view returns (TvmCell deployable, uint128 balance) {        
+        deployable = tvm.buildStateInit({
+            contr: Root,
+            code: root.code,
+            pubkey: tvm.pubkey(),
+            varInit: {
+                _version: 1,
+                _deployer: address(this)
+            }
+        });
+        balance = uint128(root.tons) * 1e9;
     }
 
-    function onDeploy(uint16 id) external override accept {
-        if (id == ROOT_ID) {
-            address from = msg.sender;
-            _deployed[3] = from;
-            Root(from).updateSystemImage{value: REIMBURSE}(_images[1], _images[2], _images[3], _images[4]);
-            Root(from).updateUserImage{value: REIMBURSE}(_images[6], _images[7], _ownerKeys); // 6 = OwnerWallet, 7 = TokenWallet
-        }
+    function calcRootAddress() public view returns (address root) {
+        Code rootImg = repo[1];
+        (TvmCell stateInit, ) = _makeRootDeployParams(rootImg);
+        root = address(tvm.hash(stateInit));
     }
 
-    function updateImage(uint8 index, CTImage image) external accept {
-        _images[index] = image;
+    function deployRoot(uint[] ownerKeys) public view offchain accept returns (address rootAddr) {
+        Code root = repo[1];
+        (TvmCell stateInit, uint128 balance) = _makeRootDeployParams(root);
+        rootAddr = new Root {
+            stateInit: stateInit,
+            value: balance
+        }(ownerKeys);
     }
 
-    function setOwnerKeys(uint[] keys) external accept {
-        _ownerKeys = keys;
+    function onRootDeployed() external override onchain onlyRoot accept {
+        address root = msg.sender;
+        deployed[1] = root;
+        IRoot(root).deployUAX{value: REIMBURSE}(repo[2], repo[3], repo[4]);
     }
 
-    function upgrade(TvmCell c) external {
-//        require(msg.pubkey() == tvm.pubkey(), 100);
-        TvmCell newcode = c.toSlice().loadRef();
+    function uploadCode(uint8 index, Code image) public offchain onlyDev accept {
+        repo[index] = image;
+    }
+
+    function transfer(address addr, uint128 value) external pure offchain onlyDev accept {
+        tvm.accept();
+        addr.transfer(value, false, 3);
+    }
+
+    function upgrade(uint8 index) public offchain onlyDev {
+        TvmCell newcode = repo[index].code;
         tvm.accept();
         tvm.commit();
         tvm.setcode(newcode);

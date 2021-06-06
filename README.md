@@ -2,31 +2,36 @@
 
 This is UAX contracts repo.
 
-Deploy instructions assume that you have TON Solidity Compiler and TVM Linker installed
+Deploy instructions assume that you have installed:
+- TON OS SE (Local Node for testing) 
+- TON Solidity Compiler 
+- TVM Linker
+
 
 ## Compile all contracts
 
 ```bash
+make clean
 make compile
 ```
 
 ## Deploy system
 
 ```bash
-make repo net=devnet
-make deploy net=devnet # net=devnet|mainnet|se
+make predeploy net=dev
+make deploy net=dev # net=dev|main|se
 ```
 
 ## User wallet deployment
 
 ```bash
-make genusers net=devnet
+make genusers net=dev
 ```
 
 ## Dump contract addresses and keys for frontend
 
 ```bash
-make dumpenv net=devnet
+make dumpenv net=dev
 ```
 
 ## Integrate with frontend MVP testbed

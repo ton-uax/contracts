@@ -51,7 +51,8 @@ if __name__ == '__main__':
     env = {
         "contracts": all_addrs,
         "owners": owners,
-        "users": users
+        "users": users,
+        "network": NETWORKS[NET]
     }
     
     (DATA_DIR / f'Env.json').write_text(json.dumps(env, indent=2))

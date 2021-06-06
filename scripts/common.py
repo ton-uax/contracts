@@ -202,8 +202,8 @@ DATA_DIR = Path.cwd() / 'data'
 
 
 NETWORKS = {
-    'mainnet': MAINNET_BASE_URL,
-    'devnet': DEVNET_BASE_URL,
+    'main': MAINNET_BASE_URL,
+    'dev': DEVNET_BASE_URL,
     'se': 'http://localhost'
 }
 
