@@ -6,17 +6,19 @@ from common import ABI, TVC, BUILD_DIR, DATA_DIR, NETWORKS, KeyPair, create_clie
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        raise Exception(f"Need 1 arg: network ({', '.join(NETWORKS.keys())})")
+        print(f"Need 1 arg: network ({', '.join(NETWORKS.keys())})")
+        exit()
 
     NET = sys.argv[1]
     if NET not in NETWORKS.keys():
-        raise Exception(f"Possible network names: {', '.join(NETWORKS.keys())}")
+        print(f"Possible network names: {', '.join(NETWORKS.keys())}")
+        exit()
 
     create_client(NETWORKS[NET])
 
     OWNER_KEYS_DIR = DATA_DIR / 'keys'
     DEPLOY_DATA_DIR = DATA_DIR / 'giver'
-    DEPLOY_KEY_PATH = DEPLOY_DATA_DIR / 'deploy.keys.json'
+    DEPLOY_KEY_PATH = OWNER_KEYS_DIR / 'deploy.keys.json'
     keys = KeyPair.load(DEPLOY_KEY_PATH, False)
     
     repo_addr = calc_address(ABI(BUILD_DIR, 'Repo'), TVC(BUILD_DIR, 'Repo'), keys.public)

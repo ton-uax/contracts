@@ -1,7 +1,4 @@
-pragma ton-solidity >= 0.41.0;
-pragma AbiHeader expire;
-pragma AbiHeader time;
-pragma AbiHeader pubkey;
+pragma ton-solidity >= 0.36.0;
 import "IRoot.sol";
 
 contract Base {
@@ -10,8 +7,12 @@ contract Base {
     uint64 constant COMPUTE = 1e8;
     uint64 constant REIMBURSE = 3e8;
 
-    ///
+    uint16 constant OWNER_BASE_ID   = 1;
+    uint16 constant ROOT_ID         = 30;
+    uint16 constant MEDIUM_ID       = 40;
+    uint16 constant TOKEN_BASE_ID   = 1e4;
 
+    /*  Authorization errors */
     uint16 constant ADDRESS_NOT_REGISTERED          = 113; // Address requesting token transfer is not registered
     uint16 constant MEDIUM_ACCESS_DENIED            = 114; // Address requesting Medium management action is not an owner
     uint16 constant ROOT_ACCESS_DENIED              = 117; // Unauthorized attempt to configure the Root
@@ -64,13 +65,6 @@ contract Base {
     uint16 constant TOKEN_WALLET_EXISTS             = 401; // Token wallet with this key has been already deployed
     uint16 constant BALANCE_UPDATE_TIMEOUT          = 402; // Balance update has been requested recently
 
-    ///
-
-    uint16 constant OWNER_BASE_ID   = 1;
-    uint16 constant ROOT_ID         = 30;
-    uint16 constant MEDIUM_ID       = 40;
-    uint16 constant TOKEN_BASE_ID   = 1e4;
-
     uint16 public _id;
     address public _root;
     address public _medium;
@@ -85,6 +79,14 @@ contract Base {
         if (tonBalance < _warnBalance) {
             IRoot(_root).updateTonBalance{value: PROCESS}(tonBalance);
         }
+    }
+
+    function initMember(uint16 id, address root, address medium) external {
+        _id = id;
+        _root = root;
+        _medium = medium;
+        _clients[root] = ROOT_ID;
+        _clients[medium] = MEDIUM_ID;
     }
 
 }

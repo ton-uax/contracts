@@ -119,6 +119,10 @@ def run_getter(address, abi, getter, params=None):
     return response
 
 
+def read_public(address, abi, getter):
+    return run_getter(address, abi, getter)[getter]
+
+
 def track_msg_onchain_execution(msg_or_params, shard_block_id, abi, tracker_cb):
     if isinstance(msg_or_params, ParamsOfEncodeMessage):
         msg = TON.abi.encode_message(msg_or_params)

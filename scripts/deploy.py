@@ -55,11 +55,13 @@ def deploy_root(repo_addr, repo_abi, pubkeys):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        raise Exception(f"Need 1 arg: network ({', '.join(NETWORKS.keys())})")
+        print(f"Need 1 arg: network ({', '.join(NETWORKS.keys())})")
+        exit()
 
     NET = sys.argv[1]
     if NET not in NETWORKS.keys():
-        raise Exception(f"Possible network names: {', '.join(NETWORKS.keys())}")
+        print(f"Possible network names: {', '.join(NETWORKS.keys())}")
+        exit()
 
     create_client(NETWORKS[NET])
 

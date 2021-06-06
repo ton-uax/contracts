@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.41.0;
+pragma ton-solidity >= 0.44.0;
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
@@ -6,7 +6,6 @@ pragma AbiHeader pubkey;
 struct Code {
     TvmCell code;
     uint16 tons;
-    uint16 version;
     string name;
 }
 

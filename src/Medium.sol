@@ -1,5 +1,5 @@
 pragma msgValue 4e7;
-pragma ton-solidity >= 0.41.0;
+pragma ton-solidity >= 0.44.0;
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
@@ -23,10 +23,7 @@ contract Medium is Base, IMedium  {
     uint32 _eventCount;
     uint8 _ownerCount;
 
-    mapping (uint32 => Event) public _onApproval;
-
     enum ProposalState { Undefined, Init, Requested, OnApproval, Approved, Confirmed, Committed, Done, Failed, Expired, Rejected, Last }
-    enum Triage { Undefined, Checking, Confirmed, Approved, Success, NotFound, Unauthorized, DoubleSigned, Failure, Expired, Rejected, Last }
 
     struct TokenWalletRecord {
         uint32 balance;
@@ -37,16 +34,21 @@ contract Medium is Base, IMedium  {
     struct Proposal {
         uint32 id;
         EventType eType;
+
         uint32 createdAt;
-        uint32 validUntil;
-        uint32 confirmedAt;
+        uint32 expireAt;
+        uint32 resolvedAt;
+
         ProposalState state;
+
         uint8 signsAt;
-        uint16 signs;
+        uint16 signsMask;
         uint8 signsReq;
+
         uint32 value;
         uint16 actor;
     }
+
     mapping (uint32 => Proposal) public _proposals;
     Event public _currentEvent;
 
@@ -84,12 +86,11 @@ contract Medium is Base, IMedium  {
         _;
     }
 
-    function _addClient(uint16 id, address a) private inline {
+    function _addClient(uint16 id, address a) inline private {
         _clients[a] = id;
         address addr = _ledger[id].addr;
-        if (addr.value == 0) {
+        if (addr.value == 0)
             _ledger[id] = TokenWalletRecord(0, a, uint32(now));
-        }
     }
 
     function registerTokenWallet(uint16 id) external override {
@@ -99,8 +100,9 @@ contract Medium is Base, IMedium  {
 
     function registerOwner(uint16 id, uint16 walletId, address walletAddress) external override {
         require((id >= OWNER_BASE_ID) && (id < ROOT_ID), UNAUTHORIZED_OPERATION);
-        _owners[_ownerCount] = OwnerInfo(id, walletId, msg.sender, walletAddress, uint32(now));
-        _ownerCount++;
+        if (_ownerCount == 0)
+            _addClient(MEDIUM_ID, address(this));
+        _owners[_ownerCount++] = OwnerInfo(id, walletId, msg.sender, walletAddress, uint32(now));
         _addClient(id, msg.sender);
     }
 
@@ -122,6 +124,7 @@ contract Medium is Base, IMedium  {
         tvm.accept();
         uint16 idfrom = _clients[afrom];
         uint16 idto = _clients[ato];
+
         require(idfrom != 0, UNKNOWN_TRANSFER_ORIGIN);
         require(idto != 0, UNKNOWN_TRANSFER_TARGET);
         return _transfer1(idfrom, idto, val);
@@ -130,13 +133,13 @@ contract Medium is Base, IMedium  {
     // One-step transfer
     function _transfer1(uint16 from, uint16 to, uint32 val) private returns (uint32) {
         _transferCount++;
-        uint32 total = from >= TOKEN_BASE_ID ? val + _transferFee : val;
+        uint32 total = val + _transferFee;
         if (_ledger[from].balance < total) {
             // 215 Not enough funds to perform transfer
             return 0;
         }
         _accruedFee += _transferFee;
-        // update balances
+
         _ledger[from].balance -= total;
         _ledger[to].balance += val;
         return total;
@@ -165,13 +168,12 @@ contract Medium is Base, IMedium  {
 
     function accrue(uint32 val) external override {
         uint32 total = _checkTransfer(msg.sender, address(this), val);
-        require(total > 0); 
+        require(total > 0, INSUFFICIENT_BALANCE); 
         ITokenWallet(msg.sender).debit(total);
     }
 
     function updateTransferFee(uint8 val) external voted {
         _transferFee = val;
-        // TODO: notify wallets
     }
 
     function claimTransferFee(uint16 id, uint32 val) external voted {
@@ -181,7 +183,9 @@ contract Medium is Base, IMedium  {
         // 350 Requested amount exceeds the accrued value
         _totalFeeClaimed += val;
         _accruedFee -= val;
-        this.creditOwner(id, val);
+
+        _ledger[id].balance += val;
+        ITokenWallet(_ledger[id].addr).credit(val);
     }
 
     function mint(uint32 val) external voted {
@@ -191,122 +195,105 @@ contract Medium is Base, IMedium  {
 
     function burn(uint32 val) external voted {
         _lose(val);
-        _totalSupply -= val;
-        
+        _totalSupply -= val;   
     }
 
     function withdraw(uint16 id, uint32 val) external voted {
         _lose(val);
-        this.creditOwner(id, val);
-    }
-
-    function creditOwner(uint16 id, uint32 val) external voted {
         _ledger[id].balance += val;
         ITokenWallet(_ledger[id].addr).credit(val);
     }
 
     function approve(uint32 eventID) external override owner {
+        require(_currentEvent.id != 0 && _currentEvent.id == eventID);
+        Proposal p = _proposals[_currentEvent.id];
+
         uint16 id = _clients[msg.sender];
         uint8 ownerId = uint8(id - OWNER_BASE_ID);
-        uint16 mask = uint16(1) << ownerId;
-        optional(Event) eo = _onApproval.fetch(eventID);
-        Triage st = Triage.Checking;
-        if (ownerId == 0) {
-            st = Triage.NotFound;
-        } else if (eo.hasValue()) {
-            Event ie = eo.get();
-            Proposal p = _proposals[ie.id];
-            if (p.validUntil < now) {
-                st = Triage.Expired;
-            }
-            for (uint i = 0; i < p.signsAt; i++) {
-                if (p.signs & mask > 0) {
-                    st = Triage.DoubleSigned;
-                    break;
-                }
-            }
+        uint16 senderMask = uint16(1) << ownerId;
+        uint16 senderVoted = p.signsMask & senderMask;
 
-            if (st < Triage.Success) {
-                _proposals[ie.id].signsAt++;
-                _proposals[ie.id].signs |= mask;
-                st = Triage.Approved;
-                if (_proposals[ie.id].signsAt >= p.signsReq) {
-                    st = Triage.Confirmed;
-                    this.commit(eventID, EventState.Confirmed);
-                }
-            } else if (st > Triage.Failure) {
-                this.commit(eventID, EventState.Rejected);
-            }
+        require((senderVoted == 0) && (p.resolvedAt == 0));
+        
+        if (p.resolvedAt == 0 && p.expireAt < now) {
+            delete _currentEvent;
+            tvm.exit();
         }
+    
+        p.signsAt += 1;
+        p.signsMask |= senderMask;
+        _proposals.replace(eventID, p);
+        if (p.signsAt >= p.signsReq)
+            this.commit(eventID, EventState.Confirmed);
     }
 
     function reject(uint32 eventID) external override owner {
-        optional(Event) eo = _onApproval.fetch(eventID);
-        if (eo.hasValue()) {
-            this.commit(eventID, EventState.Rejected);
+        require((_currentEvent.id != 0) && (_currentEvent.id == eventID));
+        Proposal p = _proposals[_currentEvent.id];
+        if ( (p.resolvedAt == 0) && (p.expireAt < now) ) {
+            p.resolvedAt = now;
+            delete _currentEvent;
+            tvm.exit();
         }
+        this.commit(eventID, EventState.Rejected);
     }
 
     function propose(EventType eType, uint32 value) external override owner {
-        uint16 id = _clients[msg.sender];
-        
-        if (_currentEvent.state == EventState.OnApproval && _proposals[_currentEvent.id].validUntil < now) {
+        // don't accept new proposals when current one is still unresolved 
+        Proposal p = _proposals[_currentEvent.id];
+        if ( (p.id > 0) && (p.resolvedAt == 0) && (now > p.expireAt) ) {
+            p.resolvedAt = now;
             delete _currentEvent;
         }
-        if (_currentEvent.state > EventState.Undefined && _currentEvent.state < EventState.Committed) {
-            // error
-            return;
-        }
+        require(_currentEvent.id == 0);
 
-        _currentEvent = Event(++_eventCount, eType, EventState.Undefined, uint32(now));
-
-        uint32 eid = _eventCount;
+        uint16 id = _clients[msg.sender];
         uint8 ownerId = uint8(id - OWNER_BASE_ID);
-        uint16 mask = uint16(1) << ownerId;
-        _proposals[eid] = Proposal(eid, eType, uint32(now), uint32(now + 70 seconds), 0,
-            ProposalState.OnApproval, 1, mask, _ownerCount, value, _owners[ownerId].tokenWalletId);
-        _onApproval[eid] = _currentEvent;
-        _transit(EventState.OnApproval);
-    }
+        uint32 eid = ++_eventCount;
+        
+        _currentEvent = Event(eid, eType, EventState.OnApproval, uint32(now));
+        _proposals[eid] = Proposal(
+            eid, eType, 
+            uint32(now), uint32(now + 2 minutes), 0,
+            ProposalState.OnApproval, 
+            1, uint16(1) << ownerId, 2, 
+            value, _owners[ownerId].tokenWalletId);
 
-    function _execute(Event e) private view {
-        Proposal p = _proposals[e.id];
-
-        if (e.eType == EventType.Mint)
-            this.mint(p.value);
-        else if (e.eType == EventType.Burn)
-            this.burn(p.value);
-        else if (e.eType == EventType.Withdraw)
-            this.withdraw(p.actor, p.value);
-        else if (e.eType == EventType.SetTransferFee)
-            this.updateTransferFee(uint8(p.value));
-        else if (e.eType == EventType.ClaimTransferFee)
-            this.claimTransferFee(p.actor, p.value);
-    }
-
-    function _transit(EventState st) private {
-        _currentEvent.state = st;
-        this.notifyOwners(st);
+        this.notifyOwners(_currentEvent);
     }
 
     function commit(uint32 eventID, EventState st) external self {
-        optional(Event) eo = _onApproval.fetch(eventID);
-        if (eo.hasValue()) {
-            Event e = eo.get();
-            _proposals[eventID].confirmedAt = uint32(now);
-            _transit(st);
+        require((_currentEvent.id != 0) && (_currentEvent.id == eventID));
+        _currentEvent.state = st;
 
-            if (st == EventState.Confirmed) {
-                _execute(e);
-            }
-            delete _onApproval[eventID];
-            delete _currentEvent;
+        Proposal p = _proposals[_currentEvent.id];
+        p.resolvedAt = uint32(now);
+        _proposals.replace(_currentEvent.id, p);
+        
+        if (st == EventState.Confirmed) {
+            _execute(p);
         }
+
+        this.notifyOwners(_currentEvent);
+        delete _currentEvent;
     }
 
-    function notifyOwners(EventState st) external self view {
+    function _execute(Proposal p) inline private pure {
+        if (p.eType == EventType.Mint)
+            this.mint(p.value);
+        else if (p.eType == EventType.Burn)
+            this.burn(p.value);
+        else if (p.eType == EventType.Withdraw)
+            this.withdraw(p.actor, p.value);
+        else if (p.eType == EventType.SetTransferFee)
+            this.updateTransferFee(uint8(p.value));
+        else if (p.eType == EventType.ClaimTransferFee)
+            this.claimTransferFee(p.actor, p.value);
+    }
+
+    function notifyOwners(Event e) external self view {
         for ((, OwnerInfo oi) : _owners) {
-            IOwnerWallet(oi.addr).updateEventState(_eventCount, st);
+            IOwnerWallet(oi.addr).updateEventState(e.id, e.state);
         }
     }
 

@@ -4,7 +4,7 @@ LIB:=$(BIN)/stdlib_sol.tvm
 LINKER:=$(BIN)/tvm_linker
 
 clean:
-	rm -rf build
+	rm -rf build/*
 
 #########################################################################
 # Compile and link
@@ -25,11 +25,19 @@ build/%.tvc: src/%.sol
 # Deploy
 #########################################################################
 
-repo:
-	-python scripts/repo.py $(net)
+predeploy:
+	-python scripts/uax.py $(net) setup
 
 deploy:
 	-python scripts/deploy.py $(net)
+
+
+#########################################################################
+# Generate user wallets
+#########################################################################
+
+genusers:
+	-python scripts/genwallets.py $(net)
 
 
 #########################################################################
@@ -39,10 +47,4 @@ deploy:
 dumpenv:
 	-python scripts/dumpenv.py $(net)
 
-#########################################################################
-# Generate user wallets
-#########################################################################
-
-genusers:
-	-python scripts/genwallets.py $(net)
 

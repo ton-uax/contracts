@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.41.0;
+pragma ton-solidity >= 0.44.0;
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
@@ -91,9 +91,7 @@ contract Root is IRoot, Base {
     function deployOwners() external self {
         for (uint pubkey: _ownerKeys) {
             (uint16 wid, address waddr) = _deployTokenWallet(pubkey);
-            (uint16 oid, address oaddr) = _deployOwner(pubkey, wid, waddr);
-            _roster[waddr] = WalletInfo(wid, _initialBalance, pubkey, uint32(now), uint32(now));
-            _roster[oaddr] = WalletInfo(oid, _initialBalance, pubkey, uint32(now), uint32(now));
+            _deployOwner(pubkey, wid, waddr);
         }
     }
 
@@ -101,12 +99,14 @@ contract Root is IRoot, Base {
     private returns (uint16 wid, address waddr) {
         wid = _nextWalletID++;
         waddr = _deploy(3, tvm.encodeBody(TokenWallet, wid, _medium), pubkey);
+        _roster[waddr] = WalletInfo(wid, _initialBalance, pubkey, uint32(now), uint32(now));
     }
 
     function _deployOwner(uint pubkey, uint16 wid, address waddr) 
     private returns (uint16 oid, address oaddr) {
         oid = _nextOwnerID++;
         oaddr = _deploy(4, tvm.encodeBody(OwnerWallet, oid, _medium, wid, waddr), pubkey);
+        _roster[oaddr] = WalletInfo(oid, _initialBalance, pubkey, uint32(now), uint32(now));
     }
 
     function deployTokenWalletsWithKeys(uint[] keys) external override accept returns (address[] addrs) {
