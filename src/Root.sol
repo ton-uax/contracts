@@ -24,8 +24,8 @@ contract Root is IRoot, Base {
         uint32 updatedAt;
     }
 
-    uint128 _initialBalance = 2 ton;
-    uint128 _refillValue = 2 ton;
+    uint128 _initialBalance = 1 ton;
+    uint128 _refillValue = 1 ton;
     uint32 _updateTimeout = 60 seconds;
 
     uint16 _nextOwnerID = OWNER_BASE_ID;
@@ -60,10 +60,17 @@ contract Root is IRoot, Base {
         IRepo(_deployer).onRootDeployed{value: REIMBURSE}();
     }
 
+    function _cookContract(TvmCell virgin) private inline pure returns (TvmCell salty) {
+        TvmBuilder b;
+        b.store(address(this));
+        salty = tvm.setCodeSalt(virgin, b.toCell());
+    }
+
     function _deploy(uint8 n, TvmCell constructorCall, uint key) private view returns (address) {
         Code image = images[n];
+        TvmCell salty = _cookContract(image.code);
         TvmCell deployable = tvm.buildStateInit({
-            code: image.code,
+            code: salty,
             pubkey: key
         });
 
@@ -99,20 +106,23 @@ contract Root is IRoot, Base {
     private returns (uint16 wid, address waddr) {
         wid = _nextWalletID++;
         waddr = _deploy(3, tvm.encodeBody(TokenWallet, wid, _medium), pubkey);
-        _roster[waddr] = WalletInfo(wid, _initialBalance, pubkey, uint32(now), uint32(now));
+        if (waddr != address(0))
+            _roster[waddr] = WalletInfo(wid, _initialBalance, pubkey, uint32(now), uint32(now));
     }
 
     function _deployOwner(uint pubkey, uint16 wid, address waddr) 
     private returns (uint16 oid, address oaddr) {
         oid = _nextOwnerID++;
         oaddr = _deploy(4, tvm.encodeBody(OwnerWallet, oid, _medium, wid, waddr), pubkey);
-        _roster[oaddr] = WalletInfo(oid, _initialBalance, pubkey, uint32(now), uint32(now));
+        if (oaddr != address(0))
+            _roster[oaddr] = WalletInfo(oid, _initialBalance, pubkey, uint32(now), uint32(now));
     }
 
     function deployTokenWalletsWithKeys(uint[] keys) external override accept returns (address[] addrs) {
         for (uint key: keys) {
             (, address addr) = _deployTokenWallet(key);
-            addrs.push(addr);
+            if (addr != address(0))
+                addrs.push(addr);
         }
     }
 

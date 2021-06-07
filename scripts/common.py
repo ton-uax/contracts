@@ -119,8 +119,9 @@ def run_getter(address, abi, getter, params=None):
     return response
 
 
-def read_public(address, abi, getter):
-    return run_getter(address, abi, getter)[getter]
+def get(address, abi, getter_or_public):
+    response = run_getter(address, abi, getter_or_public)
+    return response.get(getter_or_public) or response
 
 
 def track_msg_onchain_execution(msg_or_params, shard_block_id, abi, tracker_cb):

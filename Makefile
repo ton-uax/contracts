@@ -15,6 +15,7 @@ TVCS:=$(patsubst %, build/%.tvc,$(CONTRACTS))
 
 compile: $(TVCS)
 	echo $^
+	rm -rf build/*.code
 
 # recipe to compile and link
 build/%.tvc: src/%.sol

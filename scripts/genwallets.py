@@ -30,12 +30,11 @@ if __name__ == '__main__':
     keys1 = make_keys('User 1', DATA_DIR / 'keys' / 'u1.keys.json')['keypair']
     keys2 = make_keys('User 2', DATA_DIR / 'keys' / 'u2.keys.json')['keypair']
 
-    run_onchain(
+    response = run_onchain(
         root_addr, ABI(BUILD_DIR, 'Root'), 
         call_set=CallSet(
             function_name='deployTokenWalletsWithKeys', 
             input={'keys': [f"0x{keys1.public}", f"0x{keys2.public}"]}
         ))
-    address1 = calc_address(ABI(BUILD_DIR, 'TokenWallet'), TVC(BUILD_DIR, 'TokenWallet'), keys1.public)
-    address2 = calc_address(ABI(BUILD_DIR, 'TokenWallet'), TVC(BUILD_DIR, 'TokenWallet'), keys2.public)
-    print(f'Generated new UAX Token Wallets: {address1} {address2}')
+
+    print(f'Generated new UAX Token Wallets: {response.decoded.output["addrs"]}')

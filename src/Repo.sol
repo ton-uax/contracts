@@ -8,35 +8,41 @@ import "IRepo.sol";
 import "IRoot.sol";
 
 
-contract Repo is IRepo {
-
-    uint64 constant REIMBURSE = 3e8;
-    
-    modifier offchain {
-        require(msg.sender == address(0), 101);
-        _;
-    }
-
-    modifier onchain {
-        require(msg.value > 0, 101);
-        _;
-    }
-    
-    modifier onlyDev {
-        require(msg.pubkey() == tvm.pubkey(), 101);
-        _;
-    }
-
-    modifier onlyRoot {
-        require(msg.sender == calcRootAddress(), 101);
-        _;
-    }
+abstract contract Utils {
 
     modifier accept {
         tvm.accept();
         _;
     }
 
+    modifier offchain {
+        require(msg.sender == address(0), 101);
+        _;
+    }
+
+    modifier onchain {
+        require(msg.value > 0, 102);
+        _;
+    }
+    
+    modifier onlyDev {
+        require(msg.pubkey() == tvm.pubkey(), 103);
+        _;
+    }
+
+    modifier onlyAddress(address addr) {
+        require(msg.sender == addr, 104);
+        _;
+    }
+
+}
+
+
+contract Repo is Utils, IRepo {
+
+    uint64 constant REIMBURSE = 3e8;
+
+    uint16 public version;
     mapping (uint8 => Code) public repo;
     mapping (uint8 => address) public deployed;
 
@@ -48,7 +54,7 @@ contract Repo is IRepo {
             code: root.code,
             pubkey: tvm.pubkey(),
             varInit: {
-                _version: 1,
+                _version: version,
                 _deployer: address(this)
             }
         });
@@ -70,7 +76,7 @@ contract Repo is IRepo {
         }(ownerKeys);
     }
 
-    function onRootDeployed() external override onchain onlyRoot accept {
+    function onRootDeployed() external override onlyAddress(calcRootAddress()) accept {
         address root = msg.sender;
         deployed[1] = root;
         IRoot(root).deployUAX{value: REIMBURSE}(repo[2], repo[3], repo[4]);
@@ -85,16 +91,18 @@ contract Repo is IRepo {
         addr.transfer(value, false, 3);
     }
 
-    function upgrade(uint8 index) public offchain onlyDev {
-        TvmCell newcode = repo[index].code;
+    function upgrade() public offchain onlyDev {
+        require(repo.exists(0));
+        TvmCell newcode = repo[0].code;
         tvm.accept();
         tvm.commit();
         tvm.setcode(newcode);
         tvm.setCurrentCode(newcode);
-        onCodeUpgrade();
+        onCodeUpgrade(version + 1);
     }
 
-    function onCodeUpgrade() internal {
+    function onCodeUpgrade(uint16 v) internal {
         tvm.resetStorage();
+        version = v;
     }
 }

@@ -70,7 +70,7 @@ contract Base {
     address public _medium;
 
     uint8 _transferFee      = 1;
-    uint64 _warnBalance     = 1.99 ton;
+    uint64 _warnBalance     = 0.1 ton;
 
     mapping (address => uint16) public _clients;
     

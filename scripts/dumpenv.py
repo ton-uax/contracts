@@ -22,9 +22,17 @@ if __name__ == '__main__':
     keys = KeyPair.load(DEPLOY_KEY_PATH, False)
     
     repo_addr = calc_address(ABI(BUILD_DIR, 'Repo'), TVC(BUILD_DIR, 'Repo'), keys.public)
-    root_addr = run_getter(repo_addr, ABI(BUILD_DIR, 'Repo'), 'deployed')['deployed']['1']
-    medium_addr = run_getter(root_addr, ABI(BUILD_DIR, 'Root'), '_medium')['_medium']
+    if (DATA_DIR / 'Repo.addr').exists():
+        repo_addr = (DATA_DIR / 'Repo.addr').read_text().strip()
 
+    print('Repo', repo_addr)
+    root_addr = run_getter(repo_addr, ABI(BUILD_DIR, 'Repo'), 'deployed')['deployed']['1']
+    print('Root', root_addr)
+    medium_addr = run_getter(root_addr, ABI(BUILD_DIR, 'Root'), '_medium')['_medium']
+    print('Medium', medium_addr)
+
+    print('Writing full env for webapp...')
+    
     all_addrs = {
         'Repo': repo_addr,
         'Root': root_addr,
