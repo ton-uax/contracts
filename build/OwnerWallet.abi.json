@@ -1,0 +1,115 @@
+{
+	"ABI version": 2,
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"medium","type":"address"},
+				{"name":"walletId","type":"uint16"},
+				{"name":"walletAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "approve",
+			"inputs": [
+				{"name":"id","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "reject",
+			"inputs": [
+				{"name":"id","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "propose",
+			"inputs": [
+				{"name":"eType","type":"uint8"},
+				{"name":"value","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "updateEventState",
+			"inputs": [
+				{"name":"id","type":"uint32"},
+				{"name":"state","type":"uint8"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"pubkey","type":"uint256"},
+				{"name":"tokenWalletAddress","type":"address"}
+			]
+		},
+		{
+			"name": "initMember",
+			"inputs": [
+				{"name":"id","type":"uint16"},
+				{"name":"root","type":"address"},
+				{"name":"medium","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "_id",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_id","type":"uint16"}
+			]
+		},
+		{
+			"name": "_root",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_root","type":"address"}
+			]
+		},
+		{
+			"name": "_medium",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_medium","type":"address"}
+			]
+		},
+		{
+			"name": "_clients",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_clients","type":"map(address,uint16)"}
+			]
+		},
+		{
+			"name": "_events",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_events","type":"map(uint32,uint8)"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	]
+}
