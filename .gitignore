@@ -1,4 +1,5 @@
 .DS_Store
+.vscode
 data/Env.json
 data/keys
 scripts/__pycache__
