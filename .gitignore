@@ -1,3 +1,4 @@
 .DS_Store
 data/Env.json
 data/keys
+scripts/__pycache__
