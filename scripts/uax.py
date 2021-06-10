@@ -130,6 +130,8 @@ if __name__ == '__main__':
         print('Generating deploy keys')
         make_keys(path=DEPLOY_KEY_PATH, verbose=False)
 
+    ENV = json.loads((Path.cwd() / 'data' / 'Env.json').read_text())
+
     keys = KeyPair.load(DEPLOY_KEY_PATH, False)
     abi, tvc = ABI(BUILD_DIR, CONTRACT), TVC(BUILD_DIR, CONTRACT)
 
@@ -147,16 +149,17 @@ if __name__ == '__main__':
             setup(keys, abi, tvc, repo_addr)
 
         if cmd == 'giver':
-            amount = sys.argv[3]
-            give(repo_addr, amount, wait=True)
+            addr = sys.argv[3]
+            addr = ENV['contracts'].get(addr.capitalize(), addr)
+            amount = sys.argv[4]
+            give(addr, amount, wait=True)
 
         if cmd == 'deploy':
             uax_deploy(repo_addr, abi, keys)
 
         if cmd in ['repo', 'root', 'medium']:
             abi = ABI(BUILD_DIR, cmd.capitalize())
-            env = json.loads((Path.cwd() / 'data' / 'Env.json').read_text())
-            address = env['contracts'][cmd.capitalize()]
+            address = ENV['contracts'][cmd.capitalize()]
             action = sys.argv[3]
             if action == 'get':
                 getters = sys.argv[4:]
